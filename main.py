@@ -8,29 +8,18 @@ CHAT_ID = os.getenv("CHAT_ID")
 
 def get_data():
     try:
-        url = "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=100"
-        response = requests.get(url, timeout=10)
+        url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1"
+        data = requests.get(url).json()
 
-        if response.status_code != 200:
-            print("API ERROR:", response.text)
-            return pd.DataFrame()
+        prices = data["prices"]
 
-        data = response.json()
-
-        if not data or isinstance(data, dict):
-            print("Data kosong / error dari API")
-            return pd.DataFrame()
-
-        df = pd.DataFrame(data, columns=[
-            "time","open","high","low","close","volume",
-            "close_time","qav","trades","tbbav","tbqav","ignore"
-        ])
-
+        df = pd.DataFrame(prices, columns=["time", "close"])
         df["close"] = df["close"].astype(float)
+
         return df
 
     except Exception as e:
-        print("GET DATA ERROR:", e)
+        print("ERROR:", e)
         return pd.DataFrame()
 
 
